@@ -5,19 +5,12 @@ import db from '../db.js';
 const router = express.Router();
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname))
-  }
+  destination: function (req, file, cb) { cb(null, 'uploads/') },
+  filename: function (req, file, cb) { cb(null, Date.now() + path.extname(file.originalname)) }
 });
 const upload = multer({ storage: storage });
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.send('Express API');
-});
+router.get('/', function(req, res, next) { res.send('Express API'); });
 
 // Fetch locations
 router.get('/api/locations', (req, res) => {
@@ -27,19 +20,19 @@ router.get('/api/locations', (req, res) => {
   });
 });
 
-// Report item (2.2)
+// Report item
 router.post('/api/items', upload.single('photo'), (req, res) => {
-  const { location_id, description } = req.body;
+  const { location_id, item_name, description } = req.body;
   const photo_path = req.file ? '/uploads/' + req.file.filename : null;
-  const stmt = db.prepare('INSERT INTO Lost_Items (location_id, description, photo_path) VALUES (?, ?, ?)');
-  stmt.run([location_id, description, photo_path], function(err) {
+  const stmt = db.prepare('INSERT INTO Lost_Items (location_id, item_name, description, photo_path) VALUES (?, ?, ?, ?)');
+  stmt.run([location_id, item_name, description, photo_path], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Item reported successfully', itemId: this.lastID });
   });
   stmt.finalize();
 });
 
-// Fetch items (2.3)
+// Fetch items
 router.get('/api/items', (req, res) => {
   const location_id = req.query.location_id;
   const status = req.query.status;
@@ -54,7 +47,7 @@ router.get('/api/items', (req, res) => {
   });
 });
 
-// Update item status (2.4)
+// Update item status
 router.patch('/api/items/:id', (req, res) => {
   const { status } = req.body;
   const stmt = db.prepare('UPDATE Lost_Items SET status = ? WHERE item_id = ?');
@@ -65,7 +58,17 @@ router.patch('/api/items/:id', (req, res) => {
   stmt.finalize();
 });
 
-// Forum Posts APIs (2.4, 2.5)
+// ✅ 新增：刪除遺失物 API
+router.delete('/api/items/:id', (req, res) => {
+  const stmt = db.prepare('DELETE FROM Lost_Items WHERE item_id = ?');
+  stmt.run([req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Item deleted' });
+  });
+  stmt.finalize();
+});
+
+// Forum Posts APIs
 router.post('/api/posts', (req, res) => {
   const { user_id, title, content } = req.body;
   const stmt = db.prepare('INSERT INTO Posts (user_id, title, content) VALUES (?, ?, ?)');
