@@ -52,6 +52,18 @@ function initializeTables() {
       if (err) console.error('建立 Lost_Items table 失敗:', err.message);
     });
 
+    // 建立 Posts table
+    db.run(`CREATE TABLE IF NOT EXISTS Posts (
+      post_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    )`, (err) => {
+      if (err) console.error('建立 Posts table 失敗:', err.message);
+    });
+
     seedData();
   });
 }
