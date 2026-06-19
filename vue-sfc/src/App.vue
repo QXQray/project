@@ -86,8 +86,8 @@ async function fetchItems(location_id) {
   locationItems.value = data;
 }
 
-function handleLogin({ token, role }) {
-  user.value = { token, role };
+function handleLogin({ token, role, user_id }) {
+  user.value = { token, role, user_id }; 
   showAuth.value = false;
 }
 

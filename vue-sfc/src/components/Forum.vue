@@ -7,7 +7,11 @@
       </div>
       
       <div v-if="user" class="new-post-box">
-        <input v-model="newTitle" class="form-control mb-2" placeholder="輸入發文標題..." />
+        <select v-model="newTitle" class="form-control mb-2">
+          <option value="協助尋獲">協助尋獲</option>
+          <option value="純討論">純討論</option>
+        </select>
+        
         <textarea v-model="newContent" class="form-control mb-2" rows="2" placeholder="想說些什麼..."></textarea>
         <div class="text-right">
           <button class="btn btn-primary" @click="createPost">發布貼文</button>
@@ -21,7 +25,7 @@
         <div v-if="posts.length === 0" class="empty-state">目前沒有貼文。</div>
         <div v-for="post in posts" :key="post.post_id" class="post-item">
           <div class="post-content">
-            <h4 class="post-title">{{ post.title }}</h4>
+            <h4 class="post-title">【{{ post.title }}】</h4>
             <p class="post-text">{{ post.content }}</p>
             <div class="post-meta">
               <span>發文者：{{ post.username }}</span> • 
@@ -42,7 +46,7 @@ const props = defineProps(['user']);
 const emit = defineEmits(['close']);
 
 const posts = ref([]);
-const newTitle = ref('');
+const newTitle = ref('協助尋獲'); // ✅ 預設選項
 const newContent = ref('');
 
 async function fetchPosts() {
@@ -56,19 +60,24 @@ async function createPost() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      user_id: props.user.user_id || 1, // 修改這裡以取得真實登入者的 ID
+      user_id: props.user.user_id, // ✅ 需求 1：精準傳遞當前登入者的 user_id
       title: newTitle.value,
       content: newContent.value
     })
   });
+  
   if (res.ok) {
-    newTitle.value = '';
+    newTitle.value = '協助尋獲'; // 發布後重置
     newContent.value = '';
     fetchPosts();
+  } else {
+    const errorData = await res.json();
+    alert('發布失敗: ' + (errorData.error || '未知錯誤'));
   }
 }
 
 async function deletePost(id) {
+  if (!confirm('確定要刪除這篇貼文嗎？')) return;
   const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
   if (res.ok) fetchPosts();
 }
@@ -79,45 +88,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.forum-card {
-  width: 90%;
-  max-width: 600px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  overflow: hidden;
-}
-.forum-header {
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+.forum-card { width: 90%; max-width: 600px; max-height: 85vh; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.forum-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
 .forum-header h2 { margin: 0; }
 .new-post-box { padding: 20px; background: #f8fafc; border-bottom: 1px solid var(--border-color); }
 .mb-2 { margin-bottom: 8px; }
 .text-right { text-align: right; }
 .login-prompt { padding: 20px; text-align: center; color: var(--text-muted); background: #f8fafc; border-bottom: 1px solid var(--border-color);}
 
-.posts-list {
-  padding: 20px;
-  overflow-y: auto;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.post-item {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
+.posts-list { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 16px; }
+.post-item { border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .post-title { margin: 0 0 8px 0; color: var(--primary-color); }
 .post-text { margin: 0 0 12px 0; color: var(--text-main); }
 .post-meta { font-size: 0.8rem; color: var(--text-muted); }

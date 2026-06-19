@@ -71,6 +71,12 @@ router.delete('/api/items/:id', (req, res) => {
 // Forum Posts APIs
 router.post('/api/posts', (req, res) => {
   const { user_id, title, content } = req.body;
+  
+  const allowedTitles = ['協助尋獲', '純討論'];
+  if (!allowedTitles.includes(title)) {
+    return res.status(400).json({ error: '無效的標題分類，僅允許「協助尋獲」或「純討論」' });
+  }
+
   const stmt = db.prepare('INSERT INTO Posts (user_id, title, content) VALUES (?, ?, ?)');
   stmt.run([user_id, title, content], function(err) {
     if (err) return res.status(500).json({ error: err.message });
