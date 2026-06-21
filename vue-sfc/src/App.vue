@@ -75,9 +75,16 @@ onMounted(async () => {
 });
 
 function handlePinClick(loc) {
-  selectedLocation.value = loc;
-  fetchItems(loc.location_id);
-  showDrawer.value = true;
+  if (loc) {
+    // 點擊到我們定義好的區域內：顯示資料抽屜
+    selectedLocation.value = loc;
+    fetchItems(loc.location_id);
+    showDrawer.value = true;
+  } else {
+    // 點擊在區域外：地標會出現，但是清空並關閉右側抽屜
+    selectedLocation.value = null;
+    showDrawer.value = false;
+  }
 }
 
 async function fetchItems(location_id) {
