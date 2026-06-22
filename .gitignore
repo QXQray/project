@@ -1,0 +1,11 @@
+# 忽略所有的 node_modules 資料夾
+node_modules/
+
+# 忽略本機編輯器設定與系統隱藏檔
+.vscode/
+.DS_Store
+
+
+# 忽略使用者動態上傳的圖片 (保留資料夾本身不忽略)
+myexpress/uploads/*
+!myexpress/uploads/.gitkeep
