@@ -9,3 +9,13 @@ node_modules/
 # 忽略使用者動態上傳的圖片 (保留資料夾本身不忽略)
 myexpress/uploads/*
 !myexpress/uploads/.gitkeep
+
+
+# 1. 先忽略 SDD 資料夾下的「所有東西」
+SDD/**/*
+
+# 2. 但允許 Git 讀取 SDD 裡面的「資料夾結構」(這樣它才進得去找檔案)
+!SDD/**/
+
+# 3. 把所有的 .md 檔案「救回來」(取消忽略)
+!SDD/**/*.md
