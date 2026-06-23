@@ -15,7 +15,7 @@
           <label>身份角色：</label>
           <select v-model="role" class="form-control">
             <option value="Student">一般學生</option>
-            <option value="Admin">管理員</option>
+            <!-- <option value="Admin">管理員</option> -->
           </select>
         </div>
         
