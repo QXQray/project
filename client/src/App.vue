@@ -2,7 +2,7 @@
   <div id="app">
     <header class="app-header">
       <div class="header-container">
-        <h1>🔍 Campus Lost & Found</h1>
+        <h1>🔍 逢甲大學友善校園 | 遺失物地圖</h1>
         <div class="header-actions">
           <button v-if="!user" class="btn btn-primary" @click="showAuth = true">登入 / 註冊</button>
           <div v-else class="user-info">
