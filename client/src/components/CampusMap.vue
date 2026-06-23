@@ -59,8 +59,28 @@ const mouseY = ref(0);
 
 // 更新 tooltip 的位置，稍微位移以防擋住游標
 function updateMousePosition(event) {
-  mouseX.value = event.clientX + 15;
-  mouseY.value = event.clientY + 15;
+  const offset = 15; 
+  let x = event.clientX + offset;
+  let y = event.clientY + offset;
+
+  // 根據你下方的 CSS，提示框寬度是 160px + 內邊距，高度大約 150px
+  // 我們抓個安全距離：寬度 200，高度 180
+  const tooltipWidth = 200; 
+  const tooltipHeight = 180; 
+
+  // 🛡️ 邊界偵測：如果下方空間不夠，翻轉到游標上方
+  if (y + tooltipHeight > window.innerHeight) {
+    y = event.clientY - tooltipHeight - offset;
+  }
+
+  // 🛡️ 邊界偵測：如果右方空間不夠，翻轉到游標左方
+  if (x + tooltipWidth > window.innerWidth) {
+    x = event.clientX - tooltipWidth - offset;
+  }
+
+  // 更新座標
+  mouseX.value = x;
+  mouseY.value = y;
 }
 
 // 處理地圖點擊
