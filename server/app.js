@@ -17,7 +17,6 @@ const app = express();
 app.use(cors({
     origin: [
         'http://localhost:5173',          // 允許你本機開發環境的 Vue 連線 (Vite 預設 port)
-        'https://project-three-phi-94.vercel.app/' // 替換成你實際的 Vercel 網址 (注意：結尾不要有斜線 /)
     ],
     credentials: true // 如果你的 API 有用到 cookie 或 session，這個必須設定為 true
 }));
@@ -31,5 +30,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // 你的路由設定
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
+
+// 1. 讓 Express 知道要去哪裡找 Vue 打包後的靜態檔案 (dist 資料夾)
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// 2. 捕捉所有其他的網址請求，統統回傳 Vue 的 index.html，交給 Vue Router 處理前端路由
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
 
 export default app;
