@@ -13,6 +13,9 @@ jobs:
           cd client
           npm install
           npm run build
+          cd ..
+          cd server
+          npm start
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
