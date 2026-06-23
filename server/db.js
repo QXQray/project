@@ -55,8 +55,6 @@ function initializeTables() {
       FOREIGN KEY (user_id) REFERENCES Users(user_id)
     )`);
 
-    db.run("DELETE FROM Locations WHERE name = '草坪' OR name = '草坪(行政二館旁)'");
-
     seedData();
   });
 }
