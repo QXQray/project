@@ -10,8 +10,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.get('/', function(req, res, next) { res.send('Express API'); });
-
 // Fetch locations
 router.get('/api/locations', (req, res) => {
   db.all('SELECT * FROM Locations', (err, rows) => {
