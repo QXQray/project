@@ -29,7 +29,7 @@
             <p class="post-text">{{ post.content }}</p>
             <div class="post-meta">
               <span>發文者：{{ post.username }}</span> • 
-              <span>{{ new Date(post.created_at).toLocaleString() }}</span>
+              <span>{{ post.created_at }}</span>
             </div>
           </div>
           <button v-if="user?.role === 'Admin'" class="btn btn-danger btn-sm" @click="deletePost(post.post_id)">刪除</button>

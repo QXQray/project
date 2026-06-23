@@ -15,6 +15,18 @@
     </header>
 
     <main class="main-content">
+      <div class="marquee-wrapper" v-if="latestItems.length > 0">
+        <button class="marquee-btn" @click="scrollMarquee(-1)">◀</button>
+        <div class="marquee-content" ref="marqueeRef">
+          <div v-for="item in latestItems" :key="item.item_id" class="marquee-item" @click="handleMarqueeClick(item)">
+            <span class="marquee-tag">🆕 最新</span>
+            <span class="marquee-text">【{{ item.location_name }}】{{ item.item_name }}</span>
+            <span class="marquee-time">{{ item.created_at.substring(0, 16) }}</span>
+          </div>
+        </div>
+        <button class="marquee-btn" @click="scrollMarquee(1)">▶</button>
+      </div>
+
       <CampusMap :locations="locations" :selectedLocation="selectedLocation" @pin-click="handlePinClick" />
     </main>
 
@@ -69,10 +81,39 @@ const locations = ref([]);
 const selectedLocation = ref(null);
 const locationItems = ref([]);
 
+const latestItems = ref([]);
+const marqueeRef = ref(null);
+
 onMounted(async () => {
   const res = await fetch('/api/locations');
   locations.value = await res.json();
+  fetchLatestItems();
 });
+
+async function fetchLatestItems() {
+  try {
+    const res = await fetch('/api/items');
+    const data = await res.json();
+    
+    latestItems.value = data
+      .filter(item => item.created_at) // ✅ 防呆：把沒有時間的壞資料直接過濾掉
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, 5);
+  } catch (error) {
+    console.error('跑馬燈讀取失敗:', error);
+  }
+}
+
+function scrollMarquee(direction) {
+  if (marqueeRef.value) {
+    marqueeRef.value.scrollBy({ left: direction * 250, behavior: 'smooth' });
+  }
+}
+
+function handleMarqueeClick(item) {
+  const loc = locations.value.find(l => l.location_id === item.location_id);
+  if (loc) handlePinClick(loc);
+}
 
 function handlePinClick(loc) {
   if (loc) {
@@ -101,6 +142,7 @@ function handleLogin({ token, role, user_id }) {
 function onReportSuccess() {
   showReport.value = false;
   fetchItems(selectedLocation.value.location_id);
+  fetchLatestItems();
 }
 
 // ✅ 實作：管理員更新狀態
@@ -122,7 +164,37 @@ async function handleDeleteItem(itemId) {
 </script>
 
 <style>
-/* (維持原本的全局 CSS 不變，請保留原本的 <style> 內容) */
+.marquee-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--card-bg);
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+  gap: 12px;
+}
+.marquee-btn {
+  background: var(--primary-color); color: white; border: none; border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer; flex-shrink: 0;
+  display: flex; justify-content: center; align-items: center; transition: 0.2s;
+}
+.marquee-btn:hover { background: var(--primary-hover); }
+.marquee-content {
+  display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth;
+  flex-grow: 1; scrollbar-width: none; /* 隱藏 Firefox 捲軸 */
+}
+.marquee-content::-webkit-scrollbar { display: none; /* 隱藏 Chrome 捲軸 */ }
+.marquee-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 14px;
+  background: var(--bg-color); border-radius: 20px; white-space: nowrap;
+  cursor: pointer; transition: 0.2s; border: 1px solid var(--border-color);
+}
+.marquee-item:hover { background: #e0e7ff; border-color: var(--primary-color); }
+.marquee-tag { background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+.marquee-text { font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
+.marquee-time { font-size: 0.8rem; color: var(--text-muted); }
+
 :root {
   --primary-color: #4f46e5;
   --primary-hover: #4338ca;

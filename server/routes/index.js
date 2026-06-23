@@ -30,8 +30,9 @@ router.get('/api/locations', (req, res) => {
 router.post('/api/items', upload.single('photo'), (req, res) => {
   const { location_id, item_name, description } = req.body;
   const photo_path = req.file ? '/uploads/' + req.file.filename : null;
-  const stmt = db.prepare('INSERT INTO Lost_Items (location_id, item_name, description, photo_path) VALUES (?, ?, ?, ?)');
-  stmt.run([location_id, item_name, description, photo_path], function(err) {
+  const twTime = new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toISOString().replace('T', ' ').substring(0, 19);
+  const stmt = db.prepare('INSERT INTO Lost_Items (location_id, item_name, description, photo_path, created_at) VALUES (?, ?, ?, ?, ?)');
+  stmt.run([location_id, item_name, description, photo_path, twTime], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Item reported successfully', itemId: this.lastID });
   });
@@ -82,9 +83,10 @@ router.post('/api/posts', (req, res) => {
   if (!allowedTitles.includes(title)) {
     return res.status(400).json({ error: '無效的標題分類，僅允許「協助尋獲」或「純討論」' });
   }
+  const twTime = new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toISOString().replace('T', ' ').substring(0, 19);
 
-  const stmt = db.prepare('INSERT INTO Posts (user_id, title, content) VALUES (?, ?, ?)');
-  stmt.run([user_id, title, content], function(err) {
+  const stmt = db.prepare('INSERT INTO Posts (user_id, title, content, created_at) VALUES (?, ?, ?, ?)');
+  stmt.run([user_id, title, content, twTime], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: 'Post created successfully', postId: this.lastID });
   });

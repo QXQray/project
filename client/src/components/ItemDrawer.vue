@@ -33,6 +33,7 @@
             <details class="item-details">
               <summary>查看詳細描述</summary>
               <p class="item-desc">{{ item.description }}</p>
+              <p class="item-time">🕒 申報時間：{{ item.created_at }}</p>
             </details>
 
             <div v-if="user?.role === 'Admin'" class="admin-actions">
@@ -100,4 +101,5 @@ function statusClass(status) {
 
 .drawer-footer { padding: 20px; background: var(--card-bg); border-top: 1px solid var(--border-color); }
 .w-100 { width: 100%; padding: 12px; font-size: 1rem; }
+.item-time { margin: 8px 0 0 0; font-size: 0.85rem; color: var(--text-muted); }
 </style>
